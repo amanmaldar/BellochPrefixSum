@@ -1,7 +1,31 @@
-// assert ref : https://stackoverflow.com/questions/3767869/adding-message-to-assert?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-// cpu prefix sum ref: https://www.geeksforgeeks.org/prefix-sum-array-implementation-applications-competitive-programming/ 
-// performance meaurement ref: https://www.mimuw.edu.pl/~ps209291/kgkp/slides/scan.pdf
-// print from cuda kernel function - http://15418.courses.cs.cmu.edu/spring2013/article/15
+/*********************************************************************************************************
+Institute:  University of Massachusetss Lowell
+Course:     High Performance Computing EECE 7110
+Student:    Aman Maldar
+Instructor: Dr. Hang Liu
+
+Program:    Parallel Prefix scan with CUDA
+Approach:   This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep uses inclusive scan while downsweep 
+            uses exclusive scan. [1] The CPU results are generated using exclusive scan and compared against GPU results.
+            Simple appraoch:
+            - Asssume we have array A of size 32. blockDim.x = 8, gridDim.x = 4 
+            - Copy A to GPU DRAM as A_D. Copy A_D to correpsonding shared memory of each block.
+            - Each block runs the upsweep addtion. We are interested in last element in each block.
+            - Copy this last element from each block to CPU. 
+            - CPU generated the cummulative addition for this block. The results are copied back to GPU as blocksum_device.
+            - Load nth block's last element with blocksum_device[n-1] element. Do this for all blocks.
+            - Perform the downsweep on all the blocks now. Copy the result to CPU. Compare with reference CPU generated results.
+            
+
+References:
+[1] https://lowell.umassonline.net/bbcswebdav/pid-417917-dt-content-rid-5897641_1/courses/L2730-16402/scan.pdf
+[2] Assertion: https://stackoverflow.com/questions/3767869/adding-message-to-assert?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+[3] CPU prefix sum: https://www.geeksforgeeks.org/prefix-sum-array-implementation-applications-competitive-programming/ 
+[4] Performance meaurement: https://www.mimuw.edu.pl/~ps209291/kgkp/slides/scan.pdf
+[5] Print from cuda kernel function - http://15418.courses.cs.cmu.edu/spring2013/article/15
+
+*/*********************************************************************************************************
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -10,6 +34,7 @@
 #include "helper/wtime.h"
 using namespace std;
 
+//********Assertion Defination [2]**************************************************************************
 #ifndef NDEBUG
 #   define ASSERT(condition, message) \
     do { \
@@ -23,6 +48,12 @@ using namespace std;
 #   define ASSERT(condition, message) do { } while (false)
 #endif
 
+/*********************************************************************************************************
+Name:       fillPrefixSum
+Input:      int arr[], int n, int prefixSum[]
+Output:     prefixSum[]
+Operation:  generates the result using CPU based recursive algorithm.
+*/*********************************************************************************************************
 void fillPrefixSum(int arr[], int n, int prefixSum[])
 {
     prefixSum[0] = 0;
@@ -30,6 +61,13 @@ void fillPrefixSum(int arr[], int n, int prefixSum[])
         prefixSum[i] = prefixSum[i-1] + arr[i];
 }
 
+
+/*********************************************************************************************************
+Name:      
+Input:     
+Output:     
+Operation:  
+*/*********************************************************************************************************
 __device__ int res=0;           //result from one block to next block
 __device__ int inc=0;
 __shared__ int smem[128];  
@@ -71,6 +109,13 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
 } // end kernel function
 
 
+
+/*********************************************************************************************************
+Name:      
+Input:     
+Output:     
+Operation:  
+*/*********************************************************************************************************
 
 __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int depth, int *blocksum_device) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x; 
@@ -129,6 +174,13 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
     } // end while (tid < n)
 } // end kernel function
 
+
+/*********************************************************************************************************
+Name:      
+Input:     
+Output:     
+Operation:  
+*/*********************************************************************************************************
 
 int
 main (int args, char **argv)
