@@ -45,9 +45,9 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
 
         //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
 
-        offset = 2;                 //1->2->4->8
+        offset = 1;                 //1->2->4->8
         for (d = 1; d <= depth ; d++) {                    
-            offset *= d; 
+            offset *= 2; 
             if (threadIdx.x % offset == offset-1 ){
                 smem[threadIdx.x]+= smem[threadIdx.x- offset/2];
                  __syncthreads();     
