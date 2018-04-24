@@ -151,9 +151,11 @@ main (int args, char **argv)
   //  cpu basically adds last element from previos block to next element in next block. This is sequential process.
   // 10,10,10,10 becomes 10,20,30,40
   int res = 0;
+  cout << "\n blocksum_cpu Result is: ";
   for (int i = 0; i < n; i++) {  
          res+= blocksum_cpu[i];
          blocksum_cpu[i] =res;  // array is updated here
+         cout << blocksum_cpu[i] << " "; 
   }
   cout << "\n CPU Result is: "; 
   for (int i = 0; i < n; i++) {    
