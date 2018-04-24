@@ -90,15 +90,17 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         __syncthreads();                    // wait for all threads
 
         //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
-
+        // previous result
+        // 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24 1 2 1 4 1 2 1 32
         offset = 8;                 //1->2->4->8
         for (d = depth; d > 2 ; d--) {                    
             //offset /= 2; 
             if (threadIdx.x % offset == offset-1 ){
-                int tmp =  smem[threadIdx.x- offset/2];
-                smem[threadIdx.x- offset/2] = smem[threadIdx.x];
+                int tmp3 =  smem[threadIdx.x];
+                int tmp1 =  smem[threadIdx.x- offset/2];
+                smem[threadIdx.x- offset/2] = tmp3;
                 __syncthreads();
-                smem[threadIdx.x]+= tmp;
+                smem[threadIdx.x]+= tmp1;
                  __syncthreads();     
                 printf("\n printing first downsweep tid %d %d  %d ", tid, tmp, smem[threadIdx.x]);
                 //offset /= 2;
