@@ -79,8 +79,10 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
 
     while (tid < n) {
         smem[threadIdx.x] = b_d[tid];       // each thread copy data to shared memory from previous results b_d
+         b_d[tid] = smem[threadIdx.x];  
         if (threadIdx.x ==  blockDim.x -1){
             smem[threadIdx.x] = blocksum_device[blockIdx.x];
+             b_d[tid] = 100;  
         }
         __syncthreads();                    // wait for all threads
 
@@ -96,7 +98,7 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
 
         } // end for loop */
 
-        b_d[tid] = smem[threadIdx.x];        // *write the result to array b_d[tid] location
+        //b_d[tid] = smem[threadIdx.x];        // *write the result to array b_d[tid] location
        
         __syncthreads();                    // wait for all threads to write results
         
@@ -166,7 +168,7 @@ main (int args, char **argv)
   cout << "\n blocksum_cpu Result is: ";
   for (int i = 0; i < numberOfBlocks; i++) {  
          res+= blocksum_cpu[i];
-         blocksum_cpu[i] =res;  // array is updated here
+         blocksum_cpu[i] =res;  // array is updated here. Later copy to blocksum_device
          cout << blocksum_cpu[i] << " "; 
   } cout << endl;
     
