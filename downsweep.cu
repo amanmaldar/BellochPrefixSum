@@ -192,7 +192,7 @@ main (int args, char **argv)
   int *b_ref= (int *)malloc(sizeof(int)*n);
   int *blocksum_cpu= (int *)malloc(sizeof(int)*numberOfBlocks);
     
-  cout << "\n array is: "; 
+  cout << "Inpput array is: " << endl; 
   for (int i = 0; i < n; i++) { 
       //a_cpu[i] = rand () % 5 + 2; 
       a_cpu[i] = 1;
@@ -214,28 +214,30 @@ main (int args, char **argv)
     
   auto time_beg_kernel1 = wtime();
   prefix_upsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
-  //cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
+  // copy b_d to CPU only to print upsweep result. Otherwise not needed. There would be a copy of b_d present 
+  // on GPU DRAM inbetween calls to second kernel.
+  cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
   cudaMemcpy (blocksum_cpu, blocksum_device, sizeof (int) * numberOfBlocks, cudaMemcpyDeviceToHost);
   auto time_diff_kernel1 = wtime() - time_beg_kernel1;
 
   //  cpu basically adds last element from previos block to next element in next block. This is sequential process.
   // 10,10,10,10 becomes 10,20,30,40
             
-  cout << "\n CPU Result is: "; 
+  cout << "CPU Reference Result is: " << endl; 
   for (int i = 0; i < n; i++) {    
       cout << b_ref[i] << " ";   
   }  cout << endl;
     
      // update the blocksum here by cummulative addition
    int res = 0;
-  cout << "\n blocksum_cpu Result is: ";
+  cout << "Blocksum_CPU Result is: " << endl;
   for (int i = 0; i < numberOfBlocks; i++) {  
          res+= blocksum_cpu[i];
          blocksum_cpu[i] =res;  // array is updated here. Later copy to blocksum_device
          cout << blocksum_cpu[i] << " "; 
   } cout << endl;
             
-  cout << "\n GPU Upsweep Result is: ";
+  cout << "GPU Upsweep (final) Result is: " << endl;
   for (int i = 0; i < n; i++) {    
       //assert(b_ref[i] == b_cpu[i]);
       //ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
