@@ -169,7 +169,7 @@ main (int args, char **argv)
     
     // free a_d
   // now push the  blocksum_cpu again to kernel 2
-   prefix_downsweepsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
+   //prefix_downsweepsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
 
   cout << "CPU time is: " << el_cpu * 1000 << " mSec " << endl;
   cout << "GPU kernel time is: " << el_gpu * 1000 << " mSec " << endl; 
