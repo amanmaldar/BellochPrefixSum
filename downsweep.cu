@@ -64,10 +64,11 @@ void fillPrefixSum(int arr[], int n, int prefixSum[])
 
 
 /*********************************************************************************************************
-Name:      
-Input:     
-Output:     
-Operation:  
+Name:      prefix_upsweep_kernel
+Input:     int *b_d, int *a_d, int n, int depth, int *blocksum_device
+Output:    int *blocksum_device 
+Operation: Performs the upsweep sum on each block. b_d is updated but not copied to CPU yet. 
+Note:       Size of blocksum_device is same as number of blocks
 */*********************************************************************************************************
 __device__ int res=0;           //result from one block to next block
 __device__ int inc=0;
@@ -82,9 +83,7 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
         smem[threadIdx.x] = a_d[tid];       // each thread copy data to shared memory
         __syncthreads();                    // wait for all threads
 
-        //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
-
-        offset = 1;                 //1->2->4->8
+        offset = 1;                         //1->2->4->8
         for (d = 1; d <= depth ; d++) {                    
             offset *= 2; 
             if (threadIdx.x % offset == offset-1 ){
@@ -100,11 +99,10 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
         if (threadIdx.x == blockDim.x -1){
              blocksum_device[blockIdx.x] = smem[threadIdx.x];
         }
-       
+                
         __syncthreads();                    // wait for all threads to write results
         
-        //if ((tid + 1) % 16384 == 0) { inc++; printf("\n incremented %d times\n", inc);}
-        tid += 32;               //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
+        tid += blockDim.x * gridDim.x;      //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
         
     } // end while (tid < n)
 } // end kernel function
@@ -112,10 +110,13 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
 
 
 /*********************************************************************************************************
-Name:      
-Input:     
-Output:     
-Operation:  
+Name:       prefix_downsweepsweep_kernel
+Input:      int *b_d, int *a_d, int n, int depth, int *blocksum_device
+Output:     int *b_d
+Operation:  Clears the last element in first block. Copies last element in all remaining blocks (nth) with content from
+            corresponding location in blocksum_device[n-1]. Last element in blocksum_device is not needed in exclusive scan.
+Note:       blocksum_device is updated by cpu with cummulative sums, then updated blocksum_device is given as
+            input to this kernel
 */*********************************************************************************************************
 
 __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int depth, int *blocksum_device) {
@@ -133,23 +134,18 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         if (tid == blockDim.x - 1 ){ // clear last entry in only first block - special case
              smem[threadIdx.x] = 0;
         }
-      //  b_d[tid] = smem[threadIdx.x];  // uncomment in future for intermediate testing
+        //  b_d[tid] = smem[threadIdx.x];  // uncomment in future for intermediate testing, comment entire for loop below.
         
-      /*  if (tid =1){
+        /*  if (tid =1){            // testing 
             printf("\n checking  blocksum_device[blockIdx.x] %d %d %d %d \n",  blocksum_device[0], blocksum_device[1],blocksum_device[2],blocksum_device[3] );
         }*/
         __syncthreads();                    // wait for all threads
 
-        //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
-        //QUESTION - Do we need to use both sweeps at the same time or are we running them seperately to check efficiency?
-        // how do we add the blockSum last digit to all the elements in block
-        
-        // previous result
-        //  1 2 1 4 1 2 1 0 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24
+        // previous result - 1 2 1 4 1 2 1 0 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24
 
-        offset = 8;                 //1->2->4->8
-        for (d = depth; d > 0 ; d--) {                    
-            //offset /= 2; 
+        offset = 8;                 //8 -> 4 -> 2
+        for (d = depth; d > 0 ; d--) {         // depth 3 -> 2  ->1  
+        
             if (threadIdx.x % offset == offset-1 ){
                 int tmp3 =  smem[threadIdx.x];
                 int tmp1 =  smem[threadIdx.x- offset/2];
@@ -158,7 +154,6 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
                 smem[threadIdx.x]+= tmp1;
                  __syncthreads();     
                 //printf("\n printing first downsweep tid  %d  %d  %d  %d", tid, tmp1, tmp3, smem[threadIdx.x]);
-                //offset /= 2;
             }
             offset /= 2;
 
@@ -168,8 +163,7 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
       
         __syncthreads();                    // wait for all threads to write results
         
-        //if ((tid + 1) % 16384 == 0) { inc++; printf("\n incremented %d times\n", inc);}
-        tid += 32;               //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
+        tid += blockDim.x * gridDim.x;               //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
         
         
     } // end while (tid < n)
@@ -177,10 +171,10 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
 
 
 /*********************************************************************************************************
-Name:      
-Input:     
-Output:     
-Operation:  
+Name:      main
+Input:     -
+Output:     -
+Operation:  Initializes CPU arrays. Initalize memory on device. Calls kernal function. Calculate CPU results.
 */*********************************************************************************************************
 
 int
@@ -204,10 +198,11 @@ main (int args, char **argv)
       cout << a_cpu[i] << " ";
   }   cout << endl;
   
-  auto time_beg = wtime();
+  auto time_beg_cpu = wtime();
   fillPrefixSum(a_cpu, n, b_ref);
-  auto el_cpu = wtime() - time_beg;
+  auto time_diff_cpu = wtime() - time_beg_cpu;
   
+
   int *a_d, *b_d, *blocksum_device; //device storage pointers
 
   cudaMalloc ((void **) &a_d, sizeof (int) * n);
@@ -216,49 +211,56 @@ main (int args, char **argv)
 
   cudaMemcpy (a_d, a_cpu, sizeof (int) * n, cudaMemcpyHostToDevice);
     
-  auto time_beg1 = wtime();
+  auto time_beg_kernel1 = wtime();
   prefix_upsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
-  cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
+  //cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
   cudaMemcpy (blocksum_cpu, blocksum_device, sizeof (int) * numberOfBlocks, cudaMemcpyDeviceToHost);
-  auto el_gpu = wtime() - time_beg1;
+  auto time_diff_kernel1 = wtime() - time_beg_kernel1;
 
   //  cpu basically adds last element from previos block to next element in next block. This is sequential process.
   // 10,10,10,10 becomes 10,20,30,40
-
+            
   cout << "\n CPU Result is: "; 
   for (int i = 0; i < n; i++) {    
       cout << b_ref[i] << " ";   
   }  cout << endl;
     
-  cout << "\n GPU Result is: ";
-  for (int i = 0; i < n; i++) {    
-      //assert(b_ref[i] == b_cpu[i]);
-      //ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
-      cout << b_cpu[i] << " ";  
-  } cout << endl;
-    
-      int res = 0;
+     // update the blocksum here by cummulative addition
+   int res = 0;
   cout << "\n blocksum_cpu Result is: ";
   for (int i = 0; i < numberOfBlocks; i++) {  
          res+= blocksum_cpu[i];
          blocksum_cpu[i] =res;  // array is updated here. Later copy to blocksum_device
          cout << blocksum_cpu[i] << " "; 
   } cout << endl;
+            
+  cout << "\n GPU Upsweep Result is: ";
+  for (int i = 0; i < n; i++) {    
+      //assert(b_ref[i] == b_cpu[i]);
+      //ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
+      cout << b_cpu[i] << " ";  
+  } cout << endl;
+    
     
    // free a_d
    // now push the  blocksum_cpu again to kernel 2. It already has a name there as blocksum_device
+    auto time_beg_kernel2 = wtime();
+
    cudaMemcpy (blocksum_device, blocksum_cpu, sizeof (int) * numberOfBlocks, cudaMemcpyHostToDevice);
   
    prefix_downsweepsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
       cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
+        auto time_diff_kernel2 = wtime() - time_beg_kernel2;
+
       //cout << "\n checking GPU copy of result+blocksum_device  is: ";
-    cout << "\n after downsweep: ";
+    cout << "\n GPU result after downsweep: ";
       for (int i = 0; i < n; i++) {    
           cout << b_cpu[i] << " ";  
       } cout << endl;
 
     
-  cout << "CPU time is: " << el_cpu * 1000 << " mSec " << endl;
-  cout << "GPU kernel time is: " << el_gpu * 1000 << " mSec " << endl; 
+  cout << "Total CPU version time is: " << time_diff_cpu * 1000 << " mSec " << endl;
+  cout << "GPU kernel 1 time is: " << time_diff_kernel1 * 1000 << " mSec " << endl; 
+  cout << "GPU kernel 2 time is: " << time_diff_kernel2 * 1000 << " mSec " << endl; 
   return 0; 
 }
