@@ -92,13 +92,15 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
 
         offset = 8;                 //1->2->4->8
-        for (d = depth; d > 0 ; d--) {                    
+        for (d = depth; d > 2 ; d--) {                    
             //offset /= 2; 
             if (threadIdx.x % offset == offset-1 ){
                 int tmp =  smem[threadIdx.x- offset/2];
-                smem[threadIdx.x- offset/2]= smem[threadIdx.x];
+                smem[threadIdx.x- offset/2] = smem[threadIdx.x];
+                __syncthreads();
                 smem[threadIdx.x]+= tmp;
                  __syncthreads();     
+                printf("\n printing first downsweep %d  %d ", tmp, smem[threadIdx.x])
             }
             offset /= 2;
 
