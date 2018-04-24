@@ -79,11 +79,16 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
 
     while (tid < n) {
         smem[threadIdx.x] = b_d[tid];       // each thread copy data to shared memory from previous results b_d
-         b_d[tid] = smem[threadIdx.x];  
+         //b_d[tid] = smem[threadIdx.x];  
         if (threadIdx.x ==  blockDim.x -1 && blockIdx.x != 0){
             smem[threadIdx.x] = blocksum_device[blockIdx.x-1];
-             b_d[tid] = blocksum_device[blockIdx.x-1];  
+             //b_d[tid] = blocksum_device[blockIdx.x-1];  
         }
+        if (tid == blockDim.x - 1 ){ // clear last entry in first block - special case
+             smem[threadIdx.x] = 0;
+        }
+        b_d[tid] = smem[threadIdx.x];  
+        
       /*  if (tid =1){
             printf("\n checking  blocksum_device[blockIdx.x] %d %d %d %d \n",  blocksum_device[0], blocksum_device[1],blocksum_device[2],blocksum_device[3] );
         }*/
