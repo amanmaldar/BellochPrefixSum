@@ -80,8 +80,8 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
     while (tid < n) {
         smem[threadIdx.x] = b_d[tid];       // each thread copy data to shared memory from previous results b_d
          b_d[tid] = smem[threadIdx.x];  
-        if (threadIdx.x ==  blockDim.x -1){
-            smem[threadIdx.x] = blocksum_device[blockIdx.x];
+        if (threadIdx.x ==  blockDim.x -1 && blockIdx.x != 0){
+            smem[threadIdx.x] = blocksum_device[blockIdx.x-1];
              //b_d[tid] = blocksum_device[blockIdx.x];  
         }
       /*  if (tid =1){
