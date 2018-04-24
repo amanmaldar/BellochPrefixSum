@@ -45,6 +45,44 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
 
         //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
 
+        offset = 2;                 //1->2->4->8
+        for (d = 1; d <= depth ; d++) {                    
+            offset *= d; 
+            if (threadIdx.x % offset == offset-1 ){
+                smem[threadIdx.x]+= smem[threadIdx.x- offset/2];
+                 __syncthreads();     
+            }
+
+        } // end for loop
+
+        b_d[tid] = smem[threadIdx.x];        // *write the result to array b_d[tid] location
+        
+        // copy last result element of block to corresponding block location in blocksum_device
+        if (threadIdx.x == blockDim.x -1){
+             blocksum_device[blockIdx.x] = smem[threadIdx.x];
+        }
+       
+        __syncthreads();                    // wait for all threads to write results
+        
+        //if ((tid + 1) % 16384 == 0) { inc++; printf("\n incremented %d times\n", inc);}
+        tid += 16384;               //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
+        
+    } // end while (tid < n)
+} // end kernel function
+
+
+/*
+__global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int depth, int *blocksum_device) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x; 
+    int d = 0;
+    int offset = 0;
+
+    while (tid < n) {
+        smem[threadIdx.x] = a_d[tid];       // each thread copy data to shared memory
+        __syncthreads();                    // wait for all threads
+
+        //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
+
         offset = 1;                 //1->2->4->8
         for (d =0; d < depth ; d++) {                    
 
@@ -70,8 +108,7 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
         
     } // end while (tid < n)
 } // end kernel function
-
-
+*/
 int
 main (int args, char **argv)
 {
@@ -116,7 +153,7 @@ main (int args, char **argv)
   int res = 0;
   for (int i = 0; i < n; i++) {  
          res+= blocksum_cpu[i];
-         blocksum_cpu[i] =res;
+         blocksum_cpu[i] =res;  // array is updated here
   }
   cout << "\n CPU Result is: "; 
   for (int i = 0; i < n; i++) {    
@@ -130,6 +167,10 @@ main (int args, char **argv)
       cout << b_cpu[i] << " ";  
   } cout << endl;
     
+    // free a_d
+  // now push the  blocksum_cpu again to kernel 2
+   prefix_downsweepsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
+
   cout << "CPU time is: " << el_cpu * 1000 << " mSec " << endl;
   cout << "GPU kernel time is: " << el_gpu * 1000 << " mSec " << endl; 
   return 0; 
