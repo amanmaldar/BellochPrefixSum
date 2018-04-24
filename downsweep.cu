@@ -177,7 +177,7 @@ main (int args, char **argv)
     
    // free a_d
    // now push the  blocksum_cpu again to kernel 2. It already has a name there as blocksum_device
-   cudaMemcpy (blocksum_device, blocksum_cpu, sizeof (int) * n, cudaMemcpyHostToDevice);
+   cudaMemcpy (blocksum_device, blocksum_cpu, sizeof (int) * numberOfBlocks, cudaMemcpyHostToDevice);
   
    prefix_downsweepsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
       cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
