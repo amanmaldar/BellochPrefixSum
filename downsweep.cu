@@ -105,7 +105,7 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
                 __syncthreads();
                 smem[threadIdx.x]+= tmp1;
                  __syncthreads();     
-                printf("\n printing first downsweep tid %d %d  %d ", tid, tmp, smem[threadIdx.x]);
+                printf("\n printing first downsweep tid  %d  %d  %d  %d", tid, tmp1, tmp3, smem[threadIdx.x]);
                 //offset /= 2;
             }
             
