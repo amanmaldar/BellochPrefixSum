@@ -34,7 +34,7 @@ __device__ int res=0;           //result from one block to next block
 __device__ int inc=0;
 __shared__ int smem[128];  
 
-__global__ void prefix_scan_kernel (int *b_d, int *a_d, int n, int depth) {
+__global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int *blocksum_device) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x; 
     int d = 0;
     int offset = 0;
@@ -57,6 +57,12 @@ __global__ void prefix_scan_kernel (int *b_d, int *a_d, int n, int depth) {
         } // end for loop
 
         b_d[tid] = smem[threadIdx.x];        // *write the result to array b_d[tid] location
+        
+        // copy last result element of block to corresponding block location in blocksum_device
+        if (threadIdx.x == blockDim.x -1){
+             blocksum_device[blockIdx.x] = smem[threadIdx.x]
+        }
+       
         __syncthreads();                    // wait for all threads to write results
         
         //if ((tid + 1) % 16384 == 0) { inc++; printf("\n incremented %d times\n", inc);}
@@ -69,19 +75,21 @@ __global__ void prefix_scan_kernel (int *b_d, int *a_d, int n, int depth) {
 int
 main (int args, char **argv)
 {
-  int threadsInBlock = 128;
-  int numberOfBlocks = 128;
-  //int n = threadsInBlock*numberOfBlocks;
-  int n = 32000000;
+  int threadsInBlock = 8;
+  int numberOfBlocks = 4;
+  int n = threadsInBlock*numberOfBlocks;
+  //int n = 32000000;
   int depth = log2(128);  
 
   int *a_cpu= (int *)malloc(sizeof(int)*n);
   int *b_cpu= (int *)malloc(sizeof(int)*n);
   int *b_ref= (int *)malloc(sizeof(int)*n);
+  int *blocksum_cpu= (int *)malloc(sizeof(int)*numberOfBlocks);
     
   cout << "\n array is: "; 
   for (int i = 0; i < n; i++) { 
-      a_cpu[i] = rand () % 5 + 2; 
+      //a_cpu[i] = rand () % 5 + 2; 
+      a_cpu[i] = 1;
       //cout << a_cpu[i] << " ";
   }   cout << endl;
   
@@ -89,24 +97,26 @@ main (int args, char **argv)
   fillPrefixSum(a_cpu, n, b_ref);
   auto el_cpu = wtime() - time_beg;
   
-  int *a_d, *b_d; //device storage pointers
+  int *a_d, *b_d, *blocksum_device; //device storage pointers
 
   cudaMalloc ((void **) &a_d, sizeof (int) * n);
   cudaMalloc ((void **) &b_d, sizeof (int) * n);
+  cudaMalloc ((void **) &blocksum_device, sizeof (int) * numberOfBlocks);
 
   cudaMemcpy (a_d, a_cpu, sizeof (int) * n, cudaMemcpyHostToDevice);
     
   auto time_beg1 = wtime();
-  prefix_scan_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth);
+  prefix_upsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
   cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
+  cudaMemcpy (blocksum_cpu, blocksum_device, sizeof (int) * numberOfBlocks, cudaMemcpyDeviceToHost);
   auto el_gpu = wtime() - time_beg1;
 
-  // cpu combines the results of each block with next block. cpu basically adds last element from previos block to
-  // next element in next block. This is sequential process.
+  //  cpu basically adds last element from previos block to next element in next block. This is sequential process.
+  // 10,10,10,10 becomes 10,20,30,40
   int res = 0;
-  for (int i = 0; i < n; i++) {    
-         b_cpu[i]+=res;
-        if((i+1)%threadsInBlock==0){ res = b_cpu[i]; }        
+  for (int i = 0; i < n; i++) {  
+         res+= blocksum_cpu[i];
+         blocksum_cpu[i] =res;
   }
   cout << "\n CPU Result is: "; 
   for (int i = 0; i < n; i++) {    
