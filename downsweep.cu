@@ -84,7 +84,7 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
             smem[threadIdx.x] = blocksum_device[blockIdx.x-1];
              //b_d[tid] = blocksum_device[blockIdx.x-1];  
         }
-        if (tid == blockDim.x - 1 ){ // clear last entry in first block - special case
+        if (tid == blockDim.x - 1 ){ // clear last entry in only first block - special case
              smem[threadIdx.x] = 0;
         }
       //  b_d[tid] = smem[threadIdx.x];  // uncomment in future for intermediate testing
