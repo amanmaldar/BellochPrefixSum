@@ -65,50 +65,49 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
         __syncthreads();                    // wait for all threads to write results
         
         //if ((tid + 1) % 16384 == 0) { inc++; printf("\n incremented %d times\n", inc);}
-        tid += 16384;               //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
+        tid += 32;               //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
         
     } // end while (tid < n)
 } // end kernel function
 
 
-/*
+
 __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int depth, int *blocksum_device) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x; 
     int d = 0;
     int offset = 0;
 
     while (tid < n) {
-        smem[threadIdx.x] = a_d[tid];       // each thread copy data to shared memory
+        smem[threadIdx.x] = b_d[tid];       // each thread copy data to shared memory from previous results b_d
+        if (threadIdx.x =  blockDim.x -1){
+            smem[threadIdx.x] = blocksum_device[tid];
+        }
         __syncthreads();                    // wait for all threads
 
         //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
 
-        offset = 1;                 //1->2->4->8
-        for (d =0; d < depth ; d++) {                    
+  /*      offset = 1;                 //1->2->4->8
+        for (d = 1; d <= depth ; d++) {                    
+            offset *= 2; 
+            if (threadIdx.x % offset == offset-1 ){
+                smem[threadIdx.x]+= smem[threadIdx.x- offset/2];
+                 __syncthreads();     
+            }
 
-            if (threadIdx.x >= offset) {  
-                smem[threadIdx.x] += smem[threadIdx.x-offset] ;           //after writing to smem do synchronize
-                __syncthreads();      
-            } // end if
-
-            offset *=2;
-        } // end for loop
+        } // end for loop */
 
         b_d[tid] = smem[threadIdx.x];        // *write the result to array b_d[tid] location
-        
-        // copy last result element of block to corresponding block location in blocksum_device
-        if (threadIdx.x == blockDim.x -1){
-             blocksum_device[blockIdx.x] = smem[threadIdx.x];
-        }
        
         __syncthreads();                    // wait for all threads to write results
         
         //if ((tid + 1) % 16384 == 0) { inc++; printf("\n incremented %d times\n", inc);}
-        tid += 16384;               //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
+        tid += 32;               //there are no actual grid present, we just increment the tid to fetch next elemennts from input array.
+        
         
     } // end while (tid < n)
 } // end kernel function
-*/
+
+
 int
 main (int args, char **argv)
 {
@@ -169,12 +168,20 @@ main (int args, char **argv)
          res+= blocksum_cpu[i];
          blocksum_cpu[i] =res;  // array is updated here
          cout << blocksum_cpu[i] << " "; 
-  }
+  } cout << endl;
     
-    // free a_d
-  // now push the  blocksum_cpu again to kernel 2
-   //prefix_downsweepsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
+   // free a_d
+   // now push the  blocksum_cpu again to kernel 2. It already has a name there as blocksum_device
+   cudaMemcpy (blocksum_device, blocksum_cpu, sizeof (int) * n, cudaMemcpyHostToDevice);
+  
+   prefix_downsweepsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
+      cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
+      cout << "\n checking GPU copy of result+blocksum_device  is: ";
+      for (int i = 0; i < n; i++) {    
+          cout << b_cpu[i] << " ";  
+      } cout << endl;
 
+    
   cout << "CPU time is: " << el_cpu * 1000 << " mSec " << endl;
   cout << "GPU kernel time is: " << el_gpu * 1000 << " mSec " << endl; 
   return 0; 
