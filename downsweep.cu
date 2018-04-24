@@ -5,8 +5,9 @@ Student:    Aman Maldar
 Instructor: Dr. Hang Liu
 
 Program:    Parallel Prefix scan with CUDA
-Approach:   This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep uses inclusive scan while downsweep 
-            uses exclusive scan. [1] The CPU results are generated using exclusive scan and compared against GPU results.
+Approach:   This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep 
+            uses inclusive scan while downsweep uses exclusive scan. [1] The CPU results are generated using 
+            exclusive scan and compared against GPU results.
             Simple appraoch:
             - Asssume we have array A of size 32. blockDim.x = 8, gridDim.x = 4 
             - Copy A to GPU DRAM as A_D. Copy A_D to correpsonding shared memory of each block.
