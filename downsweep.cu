@@ -91,17 +91,20 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
 
         //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
 
-  /*      offset = 1;                 //1->2->4->8
-        for (d = 1; d <= depth ; d++) {                    
-            offset *= 2; 
+        offset = 8;                 //1->2->4->8
+        for (d = depth; d > 0 ; d--) {                    
+            //offset /= 2; 
             if (threadIdx.x % offset == offset-1 ){
-                smem[threadIdx.x]+= smem[threadIdx.x- offset/2];
+                int tmp =  smem[threadIdx.x- offset/2];
+                smem[threadIdx.x- offset/2]= smem[threadIdx.x];
+                smem[threadIdx.x]+= tmp;
                  __syncthreads();     
             }
+            offset /= 2;
 
-        } // end for loop */
+        } // end for loop 
 
-        //b_d[tid] = smem[threadIdx.x];        // *write the result to array b_d[tid] location
+        b_d[tid] = smem[threadIdx.x];        // *write the result to array b_d[tid] location
        
         __syncthreads();                    // wait for all threads to write results
         
@@ -181,7 +184,8 @@ main (int args, char **argv)
   
    prefix_downsweepsweep_kernel <<< numberOfBlocks,threadsInBlock >>> (b_d,a_d, n, depth, blocksum_device);
       cudaMemcpy (b_cpu, b_d, sizeof (int) * n, cudaMemcpyDeviceToHost);
-      cout << "\n checking GPU copy of result+blocksum_device  is: ";
+      //cout << "\n checking GPU copy of result+blocksum_device  is: ";
+    cout << "\n after downsweep: ";
       for (int i = 0; i < n; i++) {    
           cout << b_cpu[i] << " ";  
       } cout << endl;
