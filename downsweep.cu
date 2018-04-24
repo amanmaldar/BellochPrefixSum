@@ -60,7 +60,7 @@ __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int
         
         // copy last result element of block to corresponding block location in blocksum_device
         if (threadIdx.x == blockDim.x -1){
-             blocksum_device[blockIdx.x] = smem[threadIdx.x]
+             blocksum_device[blockIdx.x] = smem[threadIdx.x];
         }
        
         __syncthreads();                    // wait for all threads to write results
