@@ -126,7 +126,7 @@ main (int args, char **argv)
   int numberOfBlocks = 4;
   int n = threadsInBlock*numberOfBlocks;
   //int n = 32000000;
-  int depth = log2(128);  
+  int depth = log2(threadsInBlock);  
 
   int *a_cpu= (int *)malloc(sizeof(int)*n);
   int *b_cpu= (int *)malloc(sizeof(int)*n);
