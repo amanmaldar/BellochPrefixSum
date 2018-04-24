@@ -80,7 +80,7 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
     while (tid < n) {
         smem[threadIdx.x] = b_d[tid];       // each thread copy data to shared memory from previous results b_d
         if (threadIdx.x ==  blockDim.x -1){
-            smem[threadIdx.x] = blocksum_device[tid];
+            smem[threadIdx.x] = blocksum_device[blockIdx.x];
         }
         __syncthreads();                    // wait for all threads
 
