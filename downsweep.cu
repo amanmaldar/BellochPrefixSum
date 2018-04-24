@@ -90,6 +90,9 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         __syncthreads();                    // wait for all threads
 
         //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
+        //QUESTION - Do we need to use both sweeps at the same time or are we running them seperately to check efficiency?
+        // how do we add the blockSum last digit to all the elements in block
+        
         // previous result
         // 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24 1 2 1 4 1 2 1 32
         offset = 8;                 //1->2->4->8
