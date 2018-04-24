@@ -90,7 +90,7 @@ main (int args, char **argv)
   for (int i = 0; i < n; i++) { 
       //a_cpu[i] = rand () % 5 + 2; 
       a_cpu[i] = 1;
-      //cout << a_cpu[i] << " ";
+      cout << a_cpu[i] << " ";
   }   cout << endl;
   
   auto time_beg = wtime();
@@ -120,14 +120,14 @@ main (int args, char **argv)
   }
   cout << "\n CPU Result is: "; 
   for (int i = 0; i < n; i++) {    
-      //cout << b_ref[i] << " ";   
+      cout << b_ref[i] << " ";   
   }  cout << endl;
     
   cout << "\n GPU Result is: ";
   for (int i = 0; i < n; i++) {    
       //assert(b_ref[i] == b_cpu[i]);
       //ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
-      //cout << b_cpu[i] << " ";  
+      cout << b_cpu[i] << " ";  
   } cout << endl;
     
   cout << "CPU time is: " << el_cpu * 1000 << " mSec " << endl;
