@@ -25,7 +25,7 @@ References:
 [4] Performance meaurement: https://www.mimuw.edu.pl/~ps209291/kgkp/slides/scan.pdf
 [5] Print from cuda kernel function - http://15418.courses.cs.cmu.edu/spring2013/article/15
 
-*/*********************************************************************************************************
+*********************************************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,7 +54,8 @@ Name:       fillPrefixSum
 Input:      int arr[], int n, int prefixSum[]
 Output:     prefixSum[]
 Operation:  generates the result using CPU based recursive algorithm.
-*/*********************************************************************************************************
+*********************************************************************************************************/
+
 void fillPrefixSum(int arr[], int n, int prefixSum[])
 {
     prefixSum[0] = 0;
@@ -69,7 +70,7 @@ Input:     int *b_d, int *a_d, int n, int depth, int *blocksum_device
 Output:    int *blocksum_device 
 Operation: Performs the upsweep sum on each block. b_d is updated but not copied to CPU yet. 
 Note:       Size of blocksum_device is same as number of blocks
-*/*********************************************************************************************************
+*********************************************************************************************************/
 __device__ int res=0;           //result from one block to next block
 __device__ int inc=0;
 __shared__ int smem[128];  
@@ -117,7 +118,7 @@ Operation:  Clears the last element in first block. Copies last element in all r
             corresponding location in blocksum_device[n-1]. Last element in blocksum_device is not needed in exclusive scan.
 Note:       blocksum_device is updated by cpu with cummulative sums, then updated blocksum_device is given as
             input to this kernel
-*/*********************************************************************************************************
+*********************************************************************************************************/
 
 __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int depth, int *blocksum_device) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x; 
@@ -175,7 +176,7 @@ Name:      main
 Input:     -
 Output:     -
 Operation:  Initializes CPU arrays. Initalize memory on device. Calls kernal function. Calculate CPU results.
-*/*********************************************************************************************************
+*********************************************************************************************************/
 
 int
 main (int args, char **argv)
