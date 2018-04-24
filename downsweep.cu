@@ -84,6 +84,9 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
             smem[threadIdx.x] = blocksum_device[blockIdx.x];
              b_d[tid] = blocksum_device[blockIdx.x];  
         }
+        if (tid =1){
+            printf("\n checking  blocksum_device[blockIdx.x] %d %d %d %d \n",  blocksum_device[0], blocksum_device[1],blocksum_device[2],blocksum_device[3] );
+        }
         __syncthreads();                    // wait for all threads
 
         //if (tid%16384 == 0 ) {   smem[tid] += res; __syncthreads();  } // result are written at the end*  
