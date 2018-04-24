@@ -87,7 +87,7 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         if (tid == blockDim.x - 1 ){ // clear last entry in first block - special case
              smem[threadIdx.x] = 0;
         }
-        b_d[tid] = smem[threadIdx.x];  
+      //  b_d[tid] = smem[threadIdx.x];  // uncomment in future for intermediate testing
         
       /*  if (tid =1){
             printf("\n checking  blocksum_device[blockIdx.x] %d %d %d %d \n",  blocksum_device[0], blocksum_device[1],blocksum_device[2],blocksum_device[3] );
@@ -99,8 +99,9 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         // how do we add the blockSum last digit to all the elements in block
         
         // previous result
-        // 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24 1 2 1 4 1 2 1 32
-/*        offset = 8;                 //1->2->4->8
+        //  1 2 1 4 1 2 1 0 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24
+
+        offset = 8;                 //1->2->4->8
         for (d = depth; d > 2 ; d--) {                    
             //offset /= 2; 
             if (threadIdx.x % offset == offset-1 ){
@@ -118,7 +119,7 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         } // end for loop 
 
         b_d[tid] = smem[threadIdx.x];        // *write the result to array b_d[tid] location
-  */     
+      
         __syncthreads();                    // wait for all threads to write results
         
         //if ((tid + 1) % 16384 == 0) { inc++; printf("\n incremented %d times\n", inc);}
