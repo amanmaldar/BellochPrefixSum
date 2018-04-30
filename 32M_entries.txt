@@ -1,0 +1,18 @@
+Updating 2234431..dffd543
+Fast-forward
+ downsweep.cu | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+Input array is: 
+
+CPU Reference Result is: 
+
+Blocksum_CPU Result is: 
+
+GPU Upsweep Result is: 
+
+GPU Downsweep (final) Result is:
+
+Total entries: 32000000
+Total CPU version time is: 89.1559 mSec 
+GPU upsweep kernel time is: 45.217 mSec 
+GPU downsweep kernel time is: 24.3959 mSec 
