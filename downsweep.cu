@@ -145,8 +145,8 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         __syncthreads();                    // wait for all threads
 
         // previous result - 1 2 1 4 1 2 1 0 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24
-
-        offset = 2^depth;                 //8 -> 4 -> 2
+        offset = 8;
+        //offset = 2^depth;                 //8 -> 4 -> 2
         for (d = depth; d > 0 ; d--) {         // depth 3 -> 2  ->1  
         
             if (threadIdx.x % offset == offset-1 ){
