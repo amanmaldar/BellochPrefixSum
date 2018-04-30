@@ -30,7 +30,7 @@ Downsweep kernel takes less time than upsweep kernel.
 Total entries: 64\
 Total CPU version time is: 0 mSec \
 GPU upsweep kernel time is: 0.0398159 mSec \
-GPU downsweep kernel time is: 0.0219345 mSec \
+GPU downsweep kernel time is: 0.0219345 mSec 
 
 ##### ----------------------------------------------------------------------------------------------------------------------------------
 ##### Result 2:
@@ -38,7 +38,7 @@ GPU downsweep kernel time is: 0.0219345 mSec \
 Total entries: 32000000 \
 Total CPU version time is: 89.1559 mSec \
 GPU upsweep kernel time is: 45.217 mSec \
-GPU downsweep kernel time is: 24.3959 mSec \
+GPU downsweep kernel time is: 24.3959 mSec 
 
 ##### ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -47,6 +47,6 @@ GPU downsweep kernel time is: 24.3959 mSec \
 Total entries: 64000000\
 Total CPU version time is: 177.801 mSec \
 GPU upsweep kernel time is: 89.3421 mSec \
-GPU downsweep kernel time is: 48.7161 mSec \
+GPU downsweep kernel time is: 48.7161 mSec 
 
 ##### ----------------------------------------------------------------------------------------------------------------------------------
