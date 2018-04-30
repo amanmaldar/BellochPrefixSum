@@ -73,7 +73,7 @@ Note:       Size of blocksum_device is same as number of blocks
 *********************************************************************************************************/
 __device__ int res=0;           //result from one block to next block
 __device__ int inc=0;
-__shared__ int smem[128];  
+__shared__ int smem[1024];  
 
 __global__ void prefix_upsweep_kernel (int *b_d, int *a_d, int n, int depth, int *blocksum_device) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x; 
@@ -144,7 +144,7 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
 
         // previous result - 1 2 1 4 1 2 1 0 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24
 
-        offset = 8;                 //8 -> 4 -> 2
+        offset = 2^depth;                 //8 -> 4 -> 2
         for (d = depth; d > 0 ; d--) {         // depth 3 -> 2  ->1  
         
             if (threadIdx.x % offset == offset-1 ){
@@ -181,8 +181,8 @@ Operation:  Initializes CPU arrays. Initalize memory on device. Calls kernal fun
 int
 main (int args, char **argv)
 {
-  int threadsInBlock = 1024;
-  int numberOfBlocks = 1024;
+  int threadsInBlock = 16;
+  int numberOfBlocks = 1;
   int n = threadsInBlock*numberOfBlocks;
   //int n = 32000000;
   int depth = log2(threadsInBlock);  
