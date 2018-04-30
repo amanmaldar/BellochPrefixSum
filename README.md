@@ -1,7 +1,6 @@
 ### Belloch Prefix Sum Implementation using CUDA
-
-Program:    Parallel Prefix scan with CUDA\
-Approach:   This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep \
+  
+This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep \
             uses inclusive scan while downsweep uses exclusive scan. [1] The CPU results are generated using \
             exclusive scan and compared against GPU results.\
             Simple appraoch:\
@@ -14,7 +13,7 @@ Approach:   This assignement works with parallel prefix scan using upsweep and d
             - Perform the downsweep on all the blocks now. Copy the result to CPU. Compare with reference CPU generated results.\
             
 
-Result:
+##### Result:
 
 ##### Input array is: 
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
