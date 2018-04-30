@@ -145,8 +145,8 @@ __global__ void prefix_downsweepsweep_kernel (int *b_d, int *a_d, int n, int dep
         __syncthreads();                    // wait for all threads
 
         // previous result - 1 2 1 4 1 2 1 0 1 2 1 4 1 2 1 8 1 2 1 4 1 2 1 16 1 2 1 4 1 2 1 24
-        offset = 8;
-        //offset = 2^depth;                 //8 -> 4 -> 2
+        //offset = 8;
+        offset = blockDim.x;                 //8 -> 4 -> 2
         for (d = depth; d > 0 ; d--) {         // depth 3 -> 2  ->1  
         
             if (threadIdx.x % offset == offset-1 ){
@@ -242,7 +242,7 @@ main (int args, char **argv)
               cout << blocksum_cpu[i] << " "; 
   } cout << endl;
             
-  cout << "GPU Upsweep (final) Result is: " << endl;
+  cout << "GPU Upsweep Result is: " << endl;
   for (int i = 0; i < n; i++) {    
       //assert(b_ref[i] == b_cpu[i]);
       //ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
@@ -262,7 +262,7 @@ main (int args, char **argv)
         auto time_diff_kernel2 = wtime() - time_beg_kernel2;
 
       //cout << "\n checking GPU copy of result+blocksum_device  is: ";
-    cout << "\n GPU result after downsweep: ";
+    cout << "GPU Downsweep (final) Result is:" << endl;
       for (int i = 0; i < n; i++) {    
           if (printing == 1)
                   cout << b_cpu[i] << " ";  
