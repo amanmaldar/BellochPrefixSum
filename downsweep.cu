@@ -181,8 +181,8 @@ Operation:  Initializes CPU arrays. Initalize memory on device. Calls kernal fun
 int
 main (int args, char **argv)
 {
-  int threadsInBlock = 8;
-  int numberOfBlocks = 4;
+  int threadsInBlock = 1024;
+  int numberOfBlocks = 1024;
   int n = threadsInBlock*numberOfBlocks;
   //int n = 32000000;
   int depth = log2(threadsInBlock);  
@@ -225,7 +225,7 @@ main (int args, char **argv)
             
   cout << "CPU Reference Result is: " << endl; 
   for (int i = 0; i < n; i++) {    
-      cout << b_ref[i] << " ";   
+      //cout << b_ref[i] << " ";   
   }  cout << endl;
     
      // update the blocksum here by cummulative addition
@@ -234,14 +234,14 @@ main (int args, char **argv)
   for (int i = 0; i < numberOfBlocks; i++) {  
          res+= blocksum_cpu[i];
          blocksum_cpu[i] =res;  // array is updated here. Later copy to blocksum_device
-         cout << blocksum_cpu[i] << " "; 
+         //cout << blocksum_cpu[i] << " "; 
   } cout << endl;
             
   cout << "GPU Upsweep (final) Result is: " << endl;
   for (int i = 0; i < n; i++) {    
       //assert(b_ref[i] == b_cpu[i]);
-      //ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
-      cout << b_cpu[i] << " ";  
+      ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
+     // cout << b_cpu[i] << " ";  
   } cout << endl;
     
     
@@ -258,12 +258,12 @@ main (int args, char **argv)
       //cout << "\n checking GPU copy of result+blocksum_device  is: ";
     cout << "\n GPU result after downsweep: ";
       for (int i = 0; i < n; i++) {    
-          cout << b_cpu[i] << " ";  
+          //cout << b_cpu[i] << " ";  
       } cout << endl;
 
-    
+  cout << "Total entries: " << n << endl; 
   cout << "Total CPU version time is: " << time_diff_cpu * 1000 << " mSec " << endl;
-  cout << "GPU kernel 1 time is: " << time_diff_kernel1 * 1000 << " mSec " << endl; 
-  cout << "GPU kernel 2 time is: " << time_diff_kernel2 * 1000 << " mSec " << endl; 
+  cout << "GPU upsweep kernel time is: " << time_diff_kernel1 * 1000 << " mSec " << endl; 
+  cout << "GPU downsweep kernel time is: " << time_diff_kernel2 * 1000 << " mSec " << endl; 
   return 0; 
 }
