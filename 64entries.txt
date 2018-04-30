@@ -1,7 +1,3 @@
-Updating 3f29a2e..179dbd4
-Fast-forward
- downsweep.cu | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 Input array is: 
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
 CPU Reference Result is: 
