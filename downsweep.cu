@@ -183,8 +183,8 @@ Operation:  Initializes CPU arrays. Initalize memory on device. Calls kernal fun
 int
 main (int args, char **argv)
 {
-  int threadsInBlock = 16;
-  int numberOfBlocks = 1;
+  int threadsInBlock = 8;
+  int numberOfBlocks = 2;
   int n = threadsInBlock*numberOfBlocks;
   //int n = 32000000;
   int depth = log2(threadsInBlock);  
