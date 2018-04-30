@@ -1,4 +1,4 @@
-Updating bc61e8a..b52f67d
+Updating 3a0631d..7cab785
 Fast-forward
  downsweep.cu | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -12,7 +12,7 @@ GPU Upsweep Result is:
 
 GPU Downsweep (final) Result is:
 
-Total entries: 33280000
-Total CPU version time is: 93.0979 mSec 
-GPU upsweep kernel time is: 46.9739 mSec 
-GPU downsweep kernel time is: 25.45 mSec 
+Total entries: 64000000
+Total CPU version time is: 177.801 mSec 
+GPU upsweep kernel time is: 89.3421 mSec 
+GPU downsweep kernel time is: 48.7161 mSec 
