@@ -2,6 +2,10 @@
   
 This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep uses inclusive scan while downsweep uses exclusive scan. The CPU results are generated using exclusive scan and compared against GPU results.
 
+##### Execution steps:
+'nvcc bellochPrefixSum.cu -std=c++11 -o bellochPrefixSum'
+'./bellochPrefixSum'
+
 #####  Approach:
 - Asssume we have array A of size 64. blockDim.x = 8, gridDim.x = 8 
 - Copy A to GPU DRAM as A_D. Copy A_D to correpsonding shared memory of each block.
