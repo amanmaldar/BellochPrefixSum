@@ -196,7 +196,7 @@ main (int args, char **argv)
   for (int i = 0; i < n; i++) { 
       //a_cpu[i] = rand () % 5 + 2; 
       a_cpu[i] = 1;
-      cout << a_cpu[i] << " ";
+      //cout << a_cpu[i] << " ";
   }   cout << endl;
   
   auto time_beg_cpu = wtime();
