@@ -4,11 +4,11 @@ This assignement works with parallel prefix scan using upsweep and downsweep app
 
 ##### Execution steps:
 
-`git clone https://github.com/amanmaldar/BellochPrefixSum` \
-Go to main function and update dimensions threadDim.x (threadsInBlock) and gridDim.x (numberOfBlocks) \
-Update `#define printing 0` to `#define printing 1` to enable printing if needed \
-`nvcc bellochPrefixSum.cu -std=c++11 -o bellochPrefixSum`\
-`./bellochPrefixSum`
+- `git clone https://github.com/amanmaldar/BellochPrefixSum` 
+- Go to main function and update dimensions threadDim.x (threadsInBlock) and gridDim.x (numberOfBlocks) 
+- Update `#define printing 0` to `#define printing 1` to enable printing if needed 
+- `nvcc bellochPrefixSum.cu -std=c++11 -o bellochPrefixSum`
+- `./bellochPrefixSum`
 
 #####  Approach:
 - Asssume we have array A of size 64. blockDim.x = 8, gridDim.x = 8 
