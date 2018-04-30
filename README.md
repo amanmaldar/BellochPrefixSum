@@ -2,14 +2,14 @@
   
 This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep uses inclusive scan while downsweep uses exclusive scan. [1] The CPU results are generated using exclusive scan and compared against GPU results.\
 
-#####  Simple appraoch:
-- Asssume we have array A of size 64. blockDim.x = 8, gridDim.x = 8 \
-- Copy A to GPU DRAM as A_D. Copy A_D to correpsonding shared memory of each block.\
-- Each block runs the upsweep addtion. We are interested in last element in each block.\
-- Copy this last element from each block to CPU. \
-- CPU generates the cummulative addition for this block. The results are copied back to GPU as blocksum_device.\
-- Load nth block's last element with blocksum_device[n-1] element. Do this for all blocks.\
-- Perform the downsweep on all the blocks now. Copy the result to CPU. Compare with reference CPU generated results.\
+#####  Simple approach:
+- Asssume we have array A of size 64. blockDim.x = 8, gridDim.x = 8 
+- Copy A to GPU DRAM as A_D. Copy A_D to correpsonding shared memory of each block.
+- Each block runs the upsweep addtion. We are interested in last element in each block.
+- Copy this last element from each block to CPU. 
+- CPU generates the cummulative addition for this block. The results are copied back to GPU as blocksum_device.
+- Load nth block's last element with blocksum_device[n-1] element. Do this for all blocks.
+- Perform the downsweep on all the blocks now. Copy the result to CPU. Compare with reference CPU generated results.
 
 
 ##### Results:
