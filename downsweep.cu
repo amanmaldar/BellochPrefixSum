@@ -35,6 +35,8 @@ References:
 #include "helper/wtime.h"
 using namespace std;
 
+#define printing 0
+
 //********Assertion Defination [2]**************************************************************************
 #ifndef NDEBUG
 #   define ASSERT(condition, message) \
@@ -196,7 +198,8 @@ main (int args, char **argv)
   for (int i = 0; i < n; i++) { 
       //a_cpu[i] = rand () % 5 + 2; 
       a_cpu[i] = 1;
-      //cout << a_cpu[i] << " ";
+      if (printing == 1)
+            cout << a_cpu[i] << " ";
   }   cout << endl;
   
   auto time_beg_cpu = wtime();
@@ -225,7 +228,8 @@ main (int args, char **argv)
             
   cout << "CPU Reference Result is: " << endl; 
   for (int i = 0; i < n; i++) {    
-      //cout << b_ref[i] << " ";   
+      if (printing == 1)
+            cout << b_ref[i] << " ";   
   }  cout << endl;
     
      // update the blocksum here by cummulative addition
@@ -234,14 +238,16 @@ main (int args, char **argv)
   for (int i = 0; i < numberOfBlocks; i++) {  
          res+= blocksum_cpu[i];
          blocksum_cpu[i] =res;  // array is updated here. Later copy to blocksum_device
-         //cout << blocksum_cpu[i] << " "; 
+         if (printing == 1)
+              cout << blocksum_cpu[i] << " "; 
   } cout << endl;
             
   cout << "GPU Upsweep (final) Result is: " << endl;
   for (int i = 0; i < n; i++) {    
       //assert(b_ref[i] == b_cpu[i]);
       ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
-     // cout << b_cpu[i] << " ";  
+      if (printing == 1)
+              cout << b_cpu[i] << " ";  
   } cout << endl;
     
     
@@ -258,7 +264,8 @@ main (int args, char **argv)
       //cout << "\n checking GPU copy of result+blocksum_device  is: ";
     cout << "\n GPU result after downsweep: ";
       for (int i = 0; i < n; i++) {    
-          //cout << b_cpu[i] << " ";  
+          if (printing == 1)
+                  cout << b_cpu[i] << " ";  
       } cout << endl;
 
   cout << "Total entries: " << n << endl; 
