@@ -1,0 +1,15 @@
+Already up-to-date.
+Input array is: 
+
+CPU Reference Result is: 
+
+Blocksum_CPU Result is: 
+
+GPU Upsweep Result is: 
+
+GPU Downsweep (final) Result is:
+
+Total entries: 32000000
+Total CPU version time is: 89.2119 mSec 
+GPU upsweep kernel time is: 45.2821 mSec 
+GPU downsweep kernel time is: 24.4191 mSec 
