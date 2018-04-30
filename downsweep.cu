@@ -194,7 +194,7 @@ main (int args, char **argv)
   int *b_ref= (int *)malloc(sizeof(int)*n);
   int *blocksum_cpu= (int *)malloc(sizeof(int)*numberOfBlocks);
     
-  cout << "Inpput array is: " << endl; 
+  cout << "Input array is: " << endl; 
   for (int i = 0; i < n; i++) { 
       //a_cpu[i] = rand () % 5 + 2; 
       a_cpu[i] = 1;
@@ -245,7 +245,7 @@ main (int args, char **argv)
   cout << "GPU Upsweep Result is: " << endl;
   for (int i = 0; i < n; i++) {    
       //assert(b_ref[i] == b_cpu[i]);
-      //ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
+      ASSERT(b_ref[i] == b_cpu[i], "Error at i= " << i);  
       if (printing == 1)
               cout << b_cpu[i] << " ";  
   } cout << endl;
