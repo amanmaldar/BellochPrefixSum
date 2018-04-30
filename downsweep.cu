@@ -35,7 +35,7 @@ References:
 #include "helper/wtime.h"
 using namespace std;
 
-#define printing 0
+#define printing 1
 
 //********Assertion Defination [2]**************************************************************************
 #ifndef NDEBUG
