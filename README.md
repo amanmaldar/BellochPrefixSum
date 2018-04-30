@@ -1,9 +1,9 @@
 ### Belloch Prefix Sum Implementation using CUDA
   
-This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep \
-            uses inclusive scan while downsweep uses exclusive scan. [1] The CPU results are generated using \
+This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep 
+            uses inclusive scan while downsweep uses exclusive scan. [1] The CPU results are generated using 
             exclusive scan and compared against GPU results.\
-            Simple appraoch:\
+          #####  Simple appraoch:\
             - Asssume we have array A of size 32. blockDim.x = 8, gridDim.x = 4 \
             - Copy A to GPU DRAM as A_D. Copy A_D to correpsonding shared memory of each block.\
             - Each block runs the upsweep addtion. We are interested in last element in each block.\
@@ -30,3 +30,5 @@ Total entries: 64
 Total CPU version time is: 0 mSec 
 GPU upsweep kernel time is: 0.0398159 mSec 
 GPU downsweep kernel time is: 0.0219345 mSec 
+
+#####--------------------------------------------------------------------------------------------------------------------------------------
