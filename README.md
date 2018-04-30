@@ -3,7 +3,10 @@
 This assignement works with parallel prefix scan using upsweep and downsweep approach. The upsweep uses inclusive scan while downsweep uses exclusive scan. The CPU results are generated using exclusive scan and compared against GPU results.
 
 ##### Execution steps:
+
 `git clone https://github.com/amanmaldar/BellochPrefixSum` \
+Go to main function and update dimensions threadDim.x (threadsInBlock) and gridDim.x (numberOfBlocks) \
+Update `#define printing 0` to `#define printing 1` to enable printing if needed \
 `nvcc bellochPrefixSum.cu -std=c++11 -o bellochPrefixSum`\
 `./bellochPrefixSum`
 
