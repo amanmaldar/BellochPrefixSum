@@ -185,7 +185,7 @@ main (int args, char **argv)
 {
 
   int threadsInBlock = 1024;
-  int numberOfBlocks = 32500;
+  int numberOfBlocks = 64500;
   int n = threadsInBlock*numberOfBlocks;
   //int n = 32000000;
   int depth = log2(threadsInBlock);  
